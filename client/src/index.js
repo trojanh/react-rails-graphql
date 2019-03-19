@@ -20,18 +20,18 @@ ReactDOM.render(
   document.getElementById('root')
 );
 
-client.query({
-  query: gql `
-    {
-      authors {
-        name
-        books {
-          title
-        }
-      }
-    }
-  `
-}).then(result => console.log(result));
+// client.query({
+//   query: gql `
+//     {
+//       authors {
+//         name
+//         books {
+//           title
+//         }
+//       }
+//     }
+//   `
+// }).then(result => console.log(result));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
