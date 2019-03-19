@@ -1,74 +1,63 @@
-import React, { Component } from 'react';
-import {
-  Form,
-  Input
-} from 'semantic-ui-react';
-import { Mutation } from 'react-apollo';
+import React, { useState } from "react";
+import { Form, Input } from "semantic-ui-react";
+import { Mutation } from "react-apollo";
 
-import updateAuthor from '../mutations/updateAuthor';
+import updateAuthor from "../mutations/updateAuthor";
 
-class AuthorUpdateForm extends Component {
-  state = { name: '', age: '' }
+const AuthorUpdateForm = props => {
+  const [author, setAuthor] = useState(props.author);
+  const { name, age } = author;
 
-  componentDidMount() {
-    this.setState({ ...this.props.author });
-  }
+  const handleChange = ({ target: { value, name } }) => setAuthor({ ...author, [name]: value });
 
-  handleChange = ({ target: { value, name } }) => this.setState({ [name]: value })
-
-  handleSubmit = (updateAuthor) => {
-    const { name, age, id } = this.state;
+  const handleSubmit = updateAuthor => {
+    const { name, age, id } = author;
 
     updateAuthor({
       variables: { id, name, age: parseInt(age) },
       optimisticResponse: {
         __typename: "Mutation",
         updateAuthor: {
-          __typename: 'Author',
+          __typename: "Author",
           author: {
-            __typename: 'Author',
+            __typename: "Author",
             id,
             name,
-            age,
+            age
           }
         }
       }
-    })
-    .then( () => {
-      this.props.toggleEdit();
-    })
-  }
+    }).then(() => {
+      props.toggleEdit();
+    });
+  };
 
-  render() {
-    const { name, age } = this.state;
+  return (
+    <Mutation mutation={updateAuthor}>
+      {(updateAuthor, { data }) => (
+        <Form onSubmit={() => handleSubmit(updateAuthor)}>
+          <Form.Field
+            label="Name"
+            placeholder="Name"
+            name="name"
+            onChange={handleChange}
+            value={name}
+            control={Input}
+          />
 
-    return (
-      <Mutation mutation={updateAuthor}>
-        {(updateAuthor, { data }) => (
-          <Form onSubmit={() => this.handleSubmit(updateAuthor)}>
-            <Form.Field
-              label='Name'
-              placeholder='Name'
-              name='name'
-              onChange={this.handleChange}
-              value={name}
-              control={Input}
-            />
-
-            <Form.Field
-              label='Age'
-              placeholder='Age'
-              name='age'
-              onChange={this.handleChange}
-              value={age}
-              control={Input}
-            />
-            <Form.Button>Submit</Form.Button>
-          </Form>
-        )}
-      </Mutation>
-    )
-  }
-}
+          <Form.Field
+            label="Age"
+            placeholder="Age"
+            name="age"
+            onChange={handleChange}
+            value={age}
+            control={Input}
+          />
+          <Form.Button>Submit</Form.Button>
+        </Form>
+      )}
+    </Mutation>
+  );
+};
 
 export default AuthorUpdateForm;

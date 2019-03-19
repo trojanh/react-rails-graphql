@@ -1,35 +1,20 @@
-import React, { Component } from 'react';
-import {
-  Query, Mutation
-} from 'react-apollo';
-import {
-  Segment,
-  Dimmer,
-  Loader,
-  Container,
-  Header,
-  Card,
-  Button
-} from 'semantic-ui-react';
+import React, { useState } from "react";
+import { Query, Mutation } from "react-apollo";
+import { Segment, Dimmer, Loader, Container, Header, Card, Button } from "semantic-ui-react";
 
-import query from '../queries/getAuthor';
-import AuthorUpdateForm from './AuthorUpdateForm';
+import query from "../queries/getAuthor";
+import AuthorUpdateForm from "./AuthorUpdateForm";
+import deleteBook from "../mutations/deleteBook";
 
-class Author extends Component {
-  state = { edit: false };
-
-  toggleEdit = () => this.setState({ edit: !this.state.edit });
-  render() {
-    const { id } = this.props.match.params;
-    console.log({id});
-
-    return (
-      <Query
-        query={query}
-        variables={{ id }}
-      >
-        {({ loading, error, data }) => {
-          if (loading) return(
+const Author = props => {
+  const { id } = props.match.params;
+  const [edit, toggleEdit] = useState(false);
+  console.log({ id });
+  return (
+    <Query query={query} variables={{ id }}>
+      {({ loading, error, data }) => {
+        if (loading)
+          return (
             <Segment>
               <Dimmer active>
                 <Loader />
@@ -37,50 +22,48 @@ class Author extends Component {
             </Segment>
           );
 
-          if (error) return <p>{error}</p>;
+        if (error) return <p>{error}</p>;
 
-          const { name, age, books } = data.author;
+        const { name, age, books } = data.author;
 
-          return (
-            <Container>
-              <Button onClick={this.props.history.goBack}>Back</Button>
-              {
-                this.state.edit?
-                  <AuthorUpdateForm toggleEdit={this.toggleEdit} author={data.author} />
-                :
-                  <div>
-                    <Header as='h1'>{name}</Header>
-                    <Header>Age: {age}</Header>
-                    <Button onClick={this.toggleEdit}>Edit</Button>
-                  </div>
-              }
-              <Card.Group centered>
-              {
-                books.map(({ id, title, genre }) => (
-                  <Card key={id}>
-                    <Card.Content>
-                      <Card.Header>{title}</Card.Header>
-                    </Card.Content>
-                    <Card.Content extra>
-                      <Card.Description>{genre}</Card.Description>
-                    </Card.Content>
-                    {/* <Card.Content extra>
-                      <Mutation mutation={deleteBook}>
-                        {(deleteAuthor, { data }) => (
-                          <Button color='red' onClick={() => this.deleteAuthor(deleteAuthor)}>Delete</Button>
-                        )}
-                      </Mutation>
-                    </Card.Content> */}
-                  </Card>
-                ))
-              }
-              </Card.Group>
-            </Container>
-          );
-        }}
-      </Query>
-    )
-  }
-}
+        return (
+          <Container>
+            <Button onClick={props.history.goBack}>Back</Button>
+            {edit ? (
+              <AuthorUpdateForm toggleEdit={() => toggleEdit(!edit)} author={data.author} />
+            ) : (
+              <div>
+                <Header as="h1">{name}</Header>
+                <Header>Age: {age}</Header>
+                <Button onClick={() => toggleEdit(!edit)}>Edit</Button>
+              </div>
+            )}
+            <Card.Group centered>
+              {books.map(({ id, title, genre }) => (
+                <Card key={id}>
+                  <Card.Content>
+                    <Card.Header>{title}</Card.Header>
+                  </Card.Content>
+                  <Card.Content extra>
+                    <Card.Description>{genre}</Card.Description>
+                  </Card.Content>
+                  <Card.Content extra>
+                    <Mutation mutation={deleteBook}>
+                      {(deleteAuthor, { data }) => (
+                        <Button color="red" onClick={() => this.deleteAuthor(deleteAuthor)}>
+                          Delete
+                        </Button>
+                      )}
+                    </Mutation>
+                  </Card.Content>
+                </Card>
+              ))}
+            </Card.Group>
+          </Container>
+        );
+      }}
+    </Query>
+  );
+};
 
 export default Author;

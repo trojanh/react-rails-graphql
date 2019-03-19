@@ -1,57 +1,52 @@
-import React, { Component } from 'react';
-import {
-  Form,
-  Input
-} from 'semantic-ui-react';
-import { Mutation } from 'react-apollo';
-import addAuthor from '../mutations/addAuthors';
-import query from '../queries/getAuthors';
+import React, { useState } from "react";
+import { Form, Input } from "semantic-ui-react";
+import { Mutation } from "react-apollo";
+import addAuthor from "../mutations/addAuthors";
+import query from "../queries/getAuthors";
 
-class AuthorForm extends Component {
-  state = { name: '', age: '' }
+const AuthorForm = () => {
+  const [author, setAuthor] = useState({ name: "", age: "" });
+  const { name, age } = author;
 
-  handleChange = ({ target: { value, name } }) => this.setState({ [name]: value })
+  const handleChange = ({ target: { value, name } }) => setAuthor({ ...author, [name]: value });
 
-  handleSubmit = (addAuthor) => {
-    const { name, age } = this.state;
+  const handleSubmit = addAuthor => {
+    const { name, age } = author;
+    console.log(author);
 
     addAuthor({
       variables: { name, age: parseInt(age) },
       refetchQueries: [{ query }]
     });
-    this.setState({ name: '', age: '' });
-  }
+    setAuthor({ name: "", age: "" });
+  };
 
-  render() {
-    const { name, age } = this.state;
+  return (
+    <Mutation mutation={addAuthor}>
+      {(addAuthor, { data }) => (
+        <Form onSubmit={() => handleSubmit(addAuthor)}>
+          <Form.Field
+            label="Name"
+            placeholder="Name"
+            name="name"
+            onChange={handleChange}
+            value={name}
+            control={Input}
+          />
 
-    return (
-      <Mutation mutation={addAuthor}>
-        {(addAuthor, { data }) => (
-          <Form onSubmit={() => this.handleSubmit(addAuthor)}>
-            <Form.Field
-              label='Name'
-              placeholder='Name'
-              name='name'
-              onChange={this.handleChange}
-              value={name}
-              control={Input}
-            />
-
-            <Form.Field
-              label='Age'
-              placeholder='Age'
-              name='age'
-              onChange={this.handleChange}
-              value={age}
-              control={Input}
-            />
-            <Form.Button>Submit</Form.Button>
-          </Form>
-        )}
-      </Mutation>
-    )
-  }
-}
+          <Form.Field
+            label="Age"
+            placeholder="Age"
+            name="age"
+            onChange={handleChange}
+            value={age}
+            control={Input}
+          />
+          <Form.Button>Submit</Form.Button>
+        </Form>
+      )}
+    </Mutation>
+  );
+};
 
 export default AuthorForm;
