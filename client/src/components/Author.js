@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  Query
+  Query, Mutation
 } from 'react-apollo';
 import {
   Segment,
@@ -13,9 +13,12 @@ import {
 } from 'semantic-ui-react';
 
 import query from '../queries/getAuthor';
-import AuthorForm from './AuthorForm';
+import AuthorUpdateForm from './AuthorUpdateForm';
 
 class Author extends Component {
+  state = { edit: false };
+
+  toggleEdit = () => this.setState({ edit: !this.state.edit });
   render() {
     const { id } = this.props.match.params;
     console.log({id});
@@ -41,9 +44,16 @@ class Author extends Component {
           return (
             <Container>
               <Button onClick={this.props.history.goBack}>Back</Button>
-              <Header as='h1'>{name}</Header>
-              <AuthorForm />
-              <Header>Age: {age}</Header>
+              {
+                this.state.edit?
+                  <AuthorUpdateForm toggleEdit={this.toggleEdit} author={data.author} />
+                :
+                  <div>
+                    <Header as='h1'>{name}</Header>
+                    <Header>Age: {age}</Header>
+                    <Button onClick={this.toggleEdit}>Edit</Button>
+                  </div>
+              }
               <Card.Group centered>
               {
                 books.map(({ id, title, genre }) => (
@@ -54,6 +64,13 @@ class Author extends Component {
                     <Card.Content extra>
                       <Card.Description>{genre}</Card.Description>
                     </Card.Content>
+                    {/* <Card.Content extra>
+                      <Mutation mutation={deleteBook}>
+                        {(deleteAuthor, { data }) => (
+                          <Button color='red' onClick={() => this.deleteAuthor(deleteAuthor)}>Delete</Button>
+                        )}
+                      </Mutation>
+                    </Card.Content> */}
                   </Card>
                 ))
               }
